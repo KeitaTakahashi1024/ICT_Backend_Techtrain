@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:5.7.22
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      # DBデータの永続化
+      - db-data:/var/lib/mysql
+      # MySQL起動時にDBを作成する
+      - ./docker/mysql:/docker-entrypoint-initdb.d
+      # 初期設定を読み込む
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+  api:
+    links:
+      - mysql
+    build:
+      context: .
+      dockerfile: ./docker/golang/Dockerfile
+    container_name: api
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/go/src/api
+    command: go run main.go
+volumes:
+  db-data:
