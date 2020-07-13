@@ -1,28 +1,45 @@
 package main
 
 import(
+	//標準のやつ
 	"fmt"
 	"net/http"
 	"encoding/json"
 	"strconv"
 	"io"
+
+	// mysql関係のライブラリ
+	//"database/sql"
+	//_ "github.com/go-sql-driver/mysql"
 )
 
-type user_struct struct {
-	Name string `json:"name"`
+/* ユーザー情報の構造体 */
+type User struct {
+	Name string `json:"name"` //名前
+	Token string `json:"token"` //トークン
 }
 
+
+var user User
+
 func main() {
-	http.HandleFunc("/user/create", createUser)
+	createUser()
 	http.HandleFunc("/user/get", getUser)
 	http.HandleFunc("/user/update", updateUser)
 	http.ListenAndServe(":8080", nil)
 }
 
-
-
 /* /user/createにおける処理を行う関数 */
-func createUser(w http.ResponseWriter, req *http.Request) {
+func createUser() {
+	// POSTリクエストからユーザーの名前を抽出する
+	http.HandleFunc("/user/create", getJsonRequest)
+	// ユーザーの名前をmysqlに追加する
+	insertMysql()
+
+}
+
+/* POSTリクエストのJson形式からユーザーの名前を抽出する関数 */
+func getJsonRequest(w http.ResponseWriter, req *http.Request) {
 	// リクエストがPOSTか確認
 	if req.Method != "POST" { //POST以外だったら...
 		w.WriteHeader(http.StatusBadRequest) //400:bad requestにする
@@ -57,9 +74,38 @@ func createUser(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, jsonBody["name"].(string))
+
+	user.Name = jsonBody["name"].(string)
+	fmt.Fprintf(w, user.Name)
 
 	w.WriteHeader(http.StatusOK)
+}
+
+/* MySQLにデータを挿入する関数 */
+func insertMysql() {
+	// db, err := sql.Open("mysql", "root:password@tcp(3306)/mysql_users")
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
+	// defer db.Close()
+
+	// stmtInsert, err := db.Prepare("INSERT INTO users(name, token) VALUES(?)")
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
+	// defer stmtInsert.Close()
+
+	// result, err := stmtInsert.Exec(user.Name, "0614")
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
+
+	// lastInsertID, err := result.LastInsertId()
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
+	
+	// fmt.Println(lastInsertID)
 }
 
 func getUser(w http.ResponseWriter, r *http.Request) {

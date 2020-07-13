@@ -1,9 +1,9 @@
 # 使用するGolangのイメージを指定する
-FROM golang:1.8
+FROM golang:1.14-alpine
 
 # 必要なパッケージなどなどをインストールする
-#RUN apt-get update -qq && \
-#    apt-get install -y mysql-client vim
+#RUN apt -y update && apt -y install git
+#RUN go get github.com/go-sql-driver/mysql
 
 # ワーキングディレクトリを指定する
 WORKDIR /go/src/api
