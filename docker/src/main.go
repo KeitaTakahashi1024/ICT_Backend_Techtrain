@@ -9,7 +9,7 @@ import(
 	"io"
 
 	// mysql関係のライブラリ
-	//"database/sql"
+	 "database/sql"
 	//_ "github.com/go-sql-driver/mysql"
 )
 
@@ -34,7 +34,7 @@ func createUser() {
 	// POSTリクエストからユーザーの名前を抽出する
 	http.HandleFunc("/user/create", getJsonRequest)
 	// ユーザーの名前をmysqlに追加する
-	insertMysql()
+	//insertMysql()
 
 }
 
@@ -83,29 +83,29 @@ func getJsonRequest(w http.ResponseWriter, req *http.Request) {
 
 /* MySQLにデータを挿入する関数 */
 func insertMysql() {
-	// db, err := sql.Open("mysql", "root:password@tcp(3306)/mysql_users")
-	// if err != nil {
-	// 	panic(err.Error())
-	// }
-	// defer db.Close()
+	db, err := sql.Open("mysql", "root:password@tcp(3306)/mysql_users")
+	if err != nil {
+		panic(err.Error())
+	}
+	defer db.Close()
 
-	// stmtInsert, err := db.Prepare("INSERT INTO users(name, token) VALUES(?)")
-	// if err != nil {
-	// 	panic(err.Error())
-	// }
-	// defer stmtInsert.Close()
+	stmtInsert, err := db.Prepare("INSERT INTO users(name, token) VALUES(?)")
+	if err != nil {
+		panic(err.Error())
+	}
+	defer stmtInsert.Close()
 
-	// result, err := stmtInsert.Exec(user.Name, "0614")
-	// if err != nil {
-	// 	panic(err.Error())
-	// }
+	result, err := stmtInsert.Exec(user.Name, "0614")
+	if err != nil {
+		panic(err.Error())
+	}
 
-	// lastInsertID, err := result.LastInsertId()
-	// if err != nil {
-	// 	panic(err.Error())
-	// }
-	
-	// fmt.Println(lastInsertID)
+	lastInsertID, err := result.LastInsertId()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	fmt.Println(lastInsertID)
 }
 
 func getUser(w http.ResponseWriter, r *http.Request) {
