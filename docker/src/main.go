@@ -10,17 +10,16 @@ import(
 
 	// mysql関係のライブラリ
 	 "database/sql"
-	//_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 /* ユーザー情報の構造体 */
 type User struct {
-	Name string `json:"name"` //名前
-	Token string `json:"token"` //トークン
+	Name string //名前
+	Token string //トークン
 }
 
-
-var user User
+var user User;
 
 func main() {
 	createUser()
@@ -33,8 +32,6 @@ func main() {
 func createUser() {
 	// POSTリクエストからユーザーの名前を抽出する
 	http.HandleFunc("/user/create", getJsonRequest)
-	// ユーザーの名前をmysqlに追加する
-	//insertMysql()
 
 }
 
@@ -76,26 +73,32 @@ func getJsonRequest(w http.ResponseWriter, req *http.Request) {
 	}
 
 	user.Name = jsonBody["name"].(string)
-	fmt.Fprintf(w, user.Name)
+	fmt.Fprintln(w, user.Name)
+
+	user.Token = "0614";
+	fmt.Fprintln(w, user.Token)
+
+	// ユーザーの名前をmysqlに追加する
+	insertMysql()
 
 	w.WriteHeader(http.StatusOK)
 }
 
 /* MySQLにデータを挿入する関数 */
 func insertMysql() {
-	db, err := sql.Open("mysql", "root:password@tcp(3306)/mysql_users")
+	db, err := sql.Open("mysql", "root:password@tcp(mysql:3306)/mysql_users")
 	if err != nil {
 		panic(err.Error())
 	}
 	defer db.Close()
 
-	stmtInsert, err := db.Prepare("INSERT INTO users(name, token) VALUES(?)")
+	stmtInsert, err := db.Prepare("INSERT INTO users(id, name, token) VALUES(?,?,?)")
 	if err != nil {
 		panic(err.Error())
 	}
 	defer stmtInsert.Close()
 
-	result, err := stmtInsert.Exec(user.Name, "0614")
+	result, err := stmtInsert.Exec(0, user.Name, user.Token)
 	if err != nil {
 		panic(err.Error())
 	}
